@@ -13,18 +13,11 @@ public class Program
         // just for temp test, remove for testing
         Environment.SetEnvironmentVariable("DATA_DIR"
             , @"C:\Users\andre\Documents\Github\nightlyprojects\simple-config-server\examples\sample-working-dir\data");
-        Environment.SetEnvironmentVariable("SERVICE_NAME", "simple-config-server");
-        Environment.SetEnvironmentVariable("SERVICE_TYPE", "_config._tcp");
         Environment.SetEnvironmentVariable("LOG_LEVEL", "Information");
-        Environment.SetEnvironmentVariable("IP_ADDRESS", "192.168.2.123");
 
         // setup all constants
         var dataDir = Environment.GetEnvironmentVariable("DATA_DIR") ?? "data";
-        var serviceName = Environment.GetEnvironmentVariable("SERVICE_NAME") ?? "simple-config-server";
-        var serviceType = Environment.GetEnvironmentVariable("SERVICE_TYPE") ?? "_config._tcp";
         var logLevel = Environment.GetEnvironmentVariable("LOG_LEVEL") ?? "Information";
-        var ipAddress = IPAddress.Parse(Environment.GetEnvironmentVariable("IP_ADDRESS") ?? "127.0.0.1");
-
 
         ushort port = 24024;
 
@@ -50,7 +43,6 @@ public class Program
             Directory.CreateDirectory(logDir);
         }
 
-
         // Setup logging
         builder.Logging.ClearProviders();
         builder.Logging.AddProvider(new CustomLoggerProvider(logDir));
@@ -58,28 +50,6 @@ public class Program
         // create application and service instances
         var app = builder.Build();
         var logger = app.Logger;
-
-        // setup mDNS
-        var mdns = new MulticastService();
-        var sd = new ServiceDiscovery(mdns);
-        mdns.Start();
-
-        // publish service
-        //var service = new ServiceProfile(
-        //    serviceName
-        //    , serviceType
-        //    , port
-        //    , addresses: [new IPAddress([192, 168, 2, 123])]
-        //    );
-        //service.HostName = serviceName + ".local";
-        var service = new ServiceProfile(
-            "MyService"
-            , "_config._tcp"
-            , port
-            );
-        sd.Advertise(service);
-        logger.LogInformation($"Starting config server: {service.FullyQualifiedName}");
-
 
         app.MapGet("/config", async (string? id, HttpContext context) => 
         {
