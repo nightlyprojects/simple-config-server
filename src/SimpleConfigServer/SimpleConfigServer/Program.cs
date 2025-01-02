@@ -11,9 +11,9 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // just for temp test, remove for testing
-        Environment.SetEnvironmentVariable("DATA_DIR"
-            , @"C:\Users\andre\Documents\Github\nightlyprojects\simple-config-server\examples\sample-working-dir\data");
-        Environment.SetEnvironmentVariable("LOG_LEVEL", "Information");
+        //Environment.SetEnvironmentVariable("DATA_DIR"
+        //    , @"C:\Users\andre\Documents\Github\nightlyprojects\simple-config-server\examples\sample-working-dir\data");
+        //Environment.SetEnvironmentVariable("LOG_LEVEL", "Information");
 
         // setup all constants
         var dataDir = Environment.GetEnvironmentVariable("DATA_DIR") ?? "data";
@@ -61,7 +61,7 @@ public class Program
                     return Results.BadRequest("Missing required 'id' parameter");
                 }
 
-                if (!System.Text.RegularExpressions.Regex.IsMatch(id, @"^[a-zA-Z0-9][a-zA-Z0-9\-_#]*$"))
+                if (!System.Text.RegularExpressions.Regex.IsMatch(id, @"^[a-zA-Z0-9][a-zA-Z0-9\-_.]*$"))
                 {
                     logger.LogError($"Invalid identifier format: {id}");
                     return Results.BadRequest("Invalid identifier format");

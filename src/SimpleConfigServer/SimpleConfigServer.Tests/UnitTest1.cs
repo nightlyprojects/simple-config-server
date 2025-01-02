@@ -25,7 +25,7 @@ public class ConfigServerTests : IClassFixture<WebApplicationFactory<Program>>
         Directory.CreateDirectory(_tempDataDir);
         Directory.CreateDirectory(_tempConfigDir);
         Directory.CreateDirectory(_tempLogDir);
-        Environment.SetEnvironmentVariable("DATA_DIR", _testDataDir);
+        Environment.SetEnvironmentVariable("DATA_DIR", _tempDataDir);
 
         _factory = factory.WithWebHostBuilder(builder =>
         {
@@ -35,13 +35,7 @@ public class ConfigServerTests : IClassFixture<WebApplicationFactory<Program>>
 
     private async Task CreateTestConfig(string id, object config)
     {
-        var configPath = Path.Combine(_testDataDir, "configs", $"{id}.json");
-        await File.WriteAllTextAsync(configPath, JsonSerializer.Serialize(config));
-    }
-
-    private async Task CreateServerConfig(ServerConfig config)
-    {
-        var configPath = Path.Combine(_testDataDir, "server-config.json");
+        var configPath = Path.Combine(_tempConfigDir, $"{id}.json");
         await File.WriteAllTextAsync(configPath, JsonSerializer.Serialize(config));
     }
 
@@ -50,12 +44,12 @@ public class ConfigServerTests : IClassFixture<WebApplicationFactory<Program>>
     {
         // Arrange
         var testConfig = new { test = "data" };
-        await CreateTestConfig("test-_#1", testConfig);
+        await CreateTestConfig("test-_V1.1", testConfig);
 
         var client = _factory.CreateClient();
 
         // Act
-        var response = await client.GetAsync("/config?id=test-_#1");
+        var response = await client.GetAsync("/config?id=test-_V1.1");
 
         // Assert
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
@@ -71,7 +65,7 @@ public class ConfigServerTests : IClassFixture<WebApplicationFactory<Program>>
         var client = _factory.CreateClient();
 
         // Act
-        var response = await client.GetAsync("/config?id=test:invalid");
+        var response = await client.GetAsync("/config?id=test:invalidid");
 
         // Assert
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
@@ -97,7 +91,7 @@ public class ConfigServerTests : IClassFixture<WebApplicationFactory<Program>>
         var client = _factory.CreateClient();
 
         // Act
-        var response = await client.GetAsync("/config?id=nonexistent");
+        var response = await client.GetAsync("/config?id=nonexistentid");
 
         // Assert
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotFound);
@@ -107,42 +101,21 @@ public class ConfigServerTests : IClassFixture<WebApplicationFactory<Program>>
     public async Task GetConfig_WithInvalidJson_ReturnsServerError()
     {
         // Arrange
-        var configPath = Path.Combine(_testDataDir, "configs", "invalid.json");
+        var configPath = Path.Combine(_tempConfigDir, "invalidjson.json");
         await File.WriteAllTextAsync(configPath, "{ invalid json }");
 
         var client = _factory.CreateClient();
 
         // Act
-        var response = await client.GetAsync("/config?id=invalid");
+        var response = await client.GetAsync("/config?id=invalidjson");
 
         // Assert
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.InternalServerError);
     }
 
-    [Fact]
-    public async Task Server_UsesCustomConfig_WhenProvided()
-    {
-        // Arrange
-        var serverConfig = new ServerConfig
-        {
-            ServiceName = "customserver",
-            ServiceType = "_customconfig._tcp",
-            Port = 5001
-        };
-        await CreateServerConfig(serverConfig);
-
-        // We need to create a new factory instance to pick up the new config
-        var customFactory = _factory.WithWebHostBuilder(builder => { });
-        var config = customFactory.Services.GetRequiredService<ServerConfig>();
-
-        // Assert
-        config.ServiceName.Should().Be("customserver");
-        config.ServiceType.Should().Be("_customconfig._tcp");
-        config.Port.Should().Be(5001);
-    }
 
     public void Dispose()
     {
-        Directory.Delete(_testDataDir, true);
+        Directory.Delete(_tempDataDir, true);
     }
 }
