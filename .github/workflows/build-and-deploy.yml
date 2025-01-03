@@ -68,8 +68,8 @@ jobs:
                 platforms: ${{ matrix.platform }}
                 push: true
                 tags: |
-                    ${{ secrets.REGISTRY_URL }}/config-server:latest
-                    ${{ secrets.REGISTRY_URL }}/config-server:${{ github.sha }}
+                    ${{ secrets.REGISTRY_URL }}/simple-config-server:latest
+                    ${{ secrets.REGISTRY_URL }}/simple-config-server:${{ github.sha }}
           
     create-release:
         needs: build-and-push
