@@ -26,7 +26,7 @@ jobs:
               working-directory: ./src/SimpleConfigServer
 
             - name: Test
-              run: dotnet test --no-build --verbostity normal --configuration Release --collect:"XPlat Code Coverage"
+              run: dotnet test --no-build --verbosity normal --configuration Release --collect:"XPlat Code Coverage"
               working-directory: ./src/SimpleConfigServer
 
             - name: Upload coverage reports
