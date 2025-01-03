@@ -1,6 +1,6 @@
-
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Text.Json;
+using System.Text;
 using FluentAssertions;
 namespace SimpleConfigServer.Tests;
 
@@ -11,10 +11,8 @@ public class ConfigServerTests : IClassFixture<WebApplicationFactory<Program>>
     private readonly string _tempConfigDir;
     private readonly string _tempLogDir;
 
-
     public ConfigServerTests(WebApplicationFactory<Program> factory)
     {
-        // specify all paths
         _tempDataDir = Path.GetTempPath();
         _tempConfigDir = Path.Combine(_tempDataDir, "configs");
         _tempLogDir = Path.Combine(_tempDataDir, "logs");
@@ -39,16 +37,12 @@ public class ConfigServerTests : IClassFixture<WebApplicationFactory<Program>>
     [Fact]
     public async Task GetConfig_WithValidId_ReturnsConfig()
     {
-        // Arrange
         var testConfig = new { test = "data" };
         await CreateTestConfig("test-_V1.1", testConfig);
-
         var client = _factory.CreateClient();
 
-        // Act
         var response = await client.GetAsync("/config?id=test-_V1.1");
 
-        // Assert
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync();
         var resultConfig = JsonSerializer.Deserialize<JsonElement>(content);
@@ -58,58 +52,105 @@ public class ConfigServerTests : IClassFixture<WebApplicationFactory<Program>>
     [Fact]
     public async Task GetConfig_WithInvalidId_ReturnsBadRequest()
     {
-        // Arrange
         var client = _factory.CreateClient();
-
-        // Act
         var response = await client.GetAsync("/config?id=test:invalidid");
-
-        // Assert
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
     }
 
     [Fact]
     public async Task GetConfig_WithMissingId_ReturnsBadRequest()
     {
-        // Arrange
         var client = _factory.CreateClient();
-
-        // Act
         var response = await client.GetAsync("/config");
-
-        // Assert
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
     }
 
     [Fact]
     public async Task GetConfig_WithNonexistentId_ReturnsNotFound()
     {
-        // Arrange
         var client = _factory.CreateClient();
-
-        // Act
         var response = await client.GetAsync("/config?id=nonexistentid");
-
-        // Assert
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotFound);
     }
 
     [Fact]
     public async Task GetConfig_WithInvalidJson_ReturnsServerError()
     {
-        // Arrange
         var configPath = Path.Combine(_tempConfigDir, "invalidjson.json");
         await File.WriteAllTextAsync(configPath, "{ invalid json }");
-
         var client = _factory.CreateClient();
 
-        // Act
         var response = await client.GetAsync("/config?id=invalidjson");
 
-        // Assert
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.InternalServerError);
     }
 
+    [Fact]
+    public async Task PostConfig_WithValidIdAndJson_SavesConfig()
+    {
+        var client = _factory.CreateClient();
+        var testConfig = new { test = "data" };
+        var content = new StringContent(JsonSerializer.Serialize(testConfig), Encoding.UTF8, "application/json");
+
+        var response = await client.PostAsync("/config?id=test1", content);
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        var savedConfig = await File.ReadAllTextAsync(Path.Combine(_tempConfigDir, "test1.json"));
+        var resultConfig = JsonSerializer.Deserialize<JsonElement>(savedConfig);
+        resultConfig.GetProperty("test").GetString().Should().Be("data");
+    }
+
+    [Fact]
+    public async Task PostConfig_WithInvalidJson_ReturnsBadRequest()
+    {
+        var client = _factory.CreateClient();
+        var content = new StringContent("{ invalid json }", Encoding.UTF8);
+
+        var response = await client.PostAsync("/config?id=test2", content);
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task PostConfig_WithInvalidId_ReturnsBadRequest()
+    {
+        var client = _factory.CreateClient();
+        var testConfig = new { test = "data" };
+        var content = new StringContent(JsonSerializer.Serialize(testConfig), Encoding.UTF8);
+
+        var response = await client.PostAsync("/config?id=invalid:id", content);
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task PostConfig_WithMissingId_ReturnsBadRequest()
+    {
+        var client = _factory.CreateClient();
+        var testConfig = new { test = "data" };
+        var content = new StringContent(JsonSerializer.Serialize(testConfig), Encoding.UTF8);
+
+        var response = await client.PostAsync("/config", content);
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task PostConfig_OverwritesExistingConfig()
+    {
+        var client = _factory.CreateClient();
+        var initialConfig = new { test = "initial" };
+        var updatedConfig = new { test = "updated" };
+        await CreateTestConfig("test3", initialConfig);
+
+        var content = new StringContent(JsonSerializer.Serialize(updatedConfig), Encoding.UTF8);
+        var response = await client.PostAsync("/config?id=test3", content);
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        var savedConfig = await File.ReadAllTextAsync(Path.Combine(_tempConfigDir, "test3.json"));
+        var resultConfig = JsonSerializer.Deserialize<JsonElement>(savedConfig);
+        resultConfig.GetProperty("test").GetString().Should().Be("updated");
+    }
 
     public void Dispose()
     {

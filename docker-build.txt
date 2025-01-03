@@ -1,0 +1,1 @@
+docker build --pull --no-cache -f "./docker/Dockerfile" --tag "simple-config-server:2.0" .
