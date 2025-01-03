@@ -19,12 +19,15 @@ jobs:
 
             - name: Restore dependencies
               run: dotnet restore
+              working-directory: ./src/SimpleConfigServer
 
             - name: Build
               run: dotnet build --no-restore --configuration Release
+              working-directory: ./src/SimpleConfigServer
 
             - name: Test
               run: dotnet test --no-build --verbostity normal --configuration Release --collect:"XPlat Code Coverage"
+              working-directory: ./src/SimpleConfigServer
 
             - name: Upload coverage reports
               uses: codecov/codecov-action@v3
