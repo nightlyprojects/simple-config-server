@@ -1,8 +1,5 @@
-using SimpleConfigServer.RollingLogger;
+using SimpleConfigServer.Logger;
 using System.Text.Json;
-using Makaretu.Dns;
-using System.Net;
-using System.Net.Sockets;
 
 public class Program
 {
@@ -12,7 +9,9 @@ public class Program
 
         // just for temp test, remove for testing
         //Environment.SetEnvironmentVariable("DATA_DIR"
-        //    , @"C:\Users\andre\Documents\Github\nightlyprojects\simple-config-server\examples\sample-working-dir\data");
+            //, @"C:\Users\andre\Documents\Github\nightlyprojects\simple-config-server\examples\sample-working-dir\data");
+        //Environment.SetEnvironmentVariable("DATA_DIR"
+            //, @"~/Docker/config-server/data");
         //Environment.SetEnvironmentVariable("LOG_LEVEL", "Information");
 
         // setup all constants

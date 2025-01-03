@@ -1,0 +1,23 @@
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+USER root
+RUN mkdir -p /data/configs /data/logs
+ENV DATA_DIR=/data
+USER app
+WORKDIR /app
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY ["src/SimpleConfigServer/SimpleConfigServer/", "SimpleConfigServer/"]
+RUN dotnet restore SimpleConfigServer/SimpleConfigServer.csproj
+RUN dotnet build "SimpleConfigServer/SimpleConfigServer.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "SimpleConfigServer/SimpleConfigServer.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+
+EXPOSE 24024
+VOLUME ["/data"]
+ENTRYPOINT ["dotnet", "SimpleConfigServer.dll"]

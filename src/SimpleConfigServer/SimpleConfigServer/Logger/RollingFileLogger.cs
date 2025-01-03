@@ -1,4 +1,4 @@
-﻿namespace SimpleConfigServer.RollingLogger
+﻿namespace SimpleConfigServer.Logger
 {
     public class RollingFileLogger
     {
@@ -31,8 +31,8 @@
         private void CleanUpOldFiles()
         {
             var logfiles = Directory.GetFiles(_logDirectory, $"{_baseFileName}_*.log")
-                .OrderByDescending( f => f )
-                .Skip( _maxFileCount )
+                .OrderByDescending(f => f)
+                .Skip(_maxFileCount)
                 .ToList();
 
             foreach (var logfile in logfiles)

@@ -2,9 +2,6 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Text.Json;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
-
-
 namespace SimpleConfigServer.Tests;
 
 public class ConfigServerTests : IClassFixture<WebApplicationFactory<Program>>

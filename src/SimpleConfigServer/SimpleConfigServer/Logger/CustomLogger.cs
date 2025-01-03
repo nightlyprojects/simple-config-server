@@ -1,4 +1,4 @@
-﻿namespace SimpleConfigServer.RollingLogger
+﻿namespace SimpleConfigServer.Logger
 {
     public class CustomLogger : ILogger
     {
