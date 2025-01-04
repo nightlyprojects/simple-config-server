@@ -1,11 +1,11 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER root
 RUN mkdir -p /data/configs /data/logs
 ENV DATA_DIR=/data
 USER app
 WORKDIR /app
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["src/SimpleConfigServer/SimpleConfigServer/", "SimpleConfigServer/"]
 RUN dotnet restore SimpleConfigServer/SimpleConfigServer.csproj
