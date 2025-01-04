@@ -18,6 +18,6 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-EXPOSE 24024
+EXPOSE 24025
 VOLUME ["/data"]
 ENTRYPOINT ["dotnet", "SimpleConfigServer.dll"]

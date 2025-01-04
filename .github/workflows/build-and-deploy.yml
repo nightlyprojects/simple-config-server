@@ -68,8 +68,8 @@ jobs:
                 platforms: ${{ matrix.platform }}
                 push: true
                 tags: |
-                    ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/simple-config-server:${{ contains(matrix.platform, 'arm64') && 'arm64' || 'amd64' }}-latest
                     ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/simple-config-server:${{ contains(matrix.platform, 'arm64') && 'arm64' || 'amd64' }}-${{ github.sha }}
+                    ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/simple-config-server:${{ contains(matrix.platform, 'arm64') && 'arm64' || 'amd64' }}-latest
                               
     create-release:
         needs: build-and-push
