@@ -1,9 +1,5 @@
-using Microsoft.AspNetCore.Hosting.Server;
 using SimpleConfigServer.Logger;
-using System.Reflection.Metadata;
-using System;
 using System.Text.Json;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 public class Program
 {
@@ -68,11 +64,11 @@ public class Program
                     return Results.NotFound($"Config not found for identifier {id}");
                 }
 
-                var content = File.ReadAllText(configPath);
+                var content = await File.ReadAllTextAsync(configPath);
 
                 try
                 {
-                    JsonDocument.Parse(content);
+                    await Task.Run(() => JsonDocument.Parse(content));
                 }
                 catch (Exception ex)
                 {
@@ -111,7 +107,7 @@ public class Program
 
                 try
                 {
-                    JsonDocument.Parse(content);
+                    await Task.Run(() => JsonDocument.Parse(content));
                 }
                 catch (Exception ex)
                 {
