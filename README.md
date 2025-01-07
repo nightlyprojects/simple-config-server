@@ -83,9 +83,9 @@ To run the server using Docker:
    ```
 
 2. Create the working directory outside the container, if you wish to access it from the outside and store persistent data.
-It should have the following structure:
+It should have the following structure: (If you don't provide the sub-folders, the program will create them for you)
     ```
-    working-directory/
+    data/
     ├─ storage/
     │  ├─ json/
     │  │  ├─ your-config-files.json
@@ -100,7 +100,7 @@ It should have the following structure:
       -v $(pwd)/data:/data \
       nightlyprojects/simple-config-server:amd64-latest
    ```
-   Replace `$(pwd)/working-directory` with the desired host directory for data storage.
+   Replace `$(pwd)/data` with the desired host directory for data storage.
    Replace `24025` with your desired port and select the right image for your architecture.
 
 ## Examples
@@ -128,6 +128,8 @@ curl -X PUT "http://localhost:24025/json?id=example" \
 ```sh
 curl -X DELETE "http://localhost:24025/json?id=example"
 ```
+For the txt-files, this works the same way. Just use the `/text` endpoint instead of the `/json` endpoint. 
+
 ---
 ## Security Notice
 
@@ -136,5 +138,6 @@ This server does not implement any security measures. It lacks:
 - Authentication and authorization.
 - Encryption (e.g., HTTPS).
 - Overwrite protection for files.
+- Content type validation for the text-endpoint.
 
 Use this server in secure and controlled environments only. Avoid deploying it directly on public networks without additional security layers.

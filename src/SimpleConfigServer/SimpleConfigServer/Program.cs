@@ -17,7 +17,7 @@ public class Program
 
         //setup directories
         var jsonDir = Path.Combine(dataDir, "storage", "json");
-        var textDir = Path.Combine(dataDir, "storage", "txt");
+        var textDir = Path.Combine(dataDir, "storage", "text");
         var logDir = Path.Combine(dataDir, "logs");
 
         if (!Directory.Exists(dataDir))

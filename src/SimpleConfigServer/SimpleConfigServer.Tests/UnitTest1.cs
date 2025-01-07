@@ -17,7 +17,7 @@ public class ConfigServerTests : IClassFixture<WebApplicationFactory<Program>>
         //create all directories
         _tempDataDir = Path.GetTempPath();
         _tempJsonDir = Path.Combine(_tempDataDir, "storage", "json");
-        _tempTextDir = Path.Combine(_tempDataDir, "storage", "txt");
+        _tempTextDir = Path.Combine(_tempDataDir, "storage", "text");
         _tempLogDir = Path.Combine(_tempDataDir, "logs");
 
         Directory.CreateDirectory(_tempDataDir);
